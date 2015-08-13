@@ -1,0 +1,81 @@
+<dom-element id="cz-button">
+<template>
+	<link rel="stylesheet" href="cz-button.css">
+	<div id="czbuttonhost">
+	<div id="root">
+		<!-- there can be only one <content> (?) : cannot put it inside two elements (even if one of them is hidden$) -->
+		<!-- but <content> does not seem to work inside <dom-if> either : workaround -->
+		<div hidden><content id="content">{{_onContent()}}</content></div>
+		
+		<cz-led id="led" hidden$="{{!led}}"></cz-led>
+		<div id="toplabel" hidden$="[[!toplabel]]">{{_content}}</div>
+		<div id="inset">
+			<div id="button">
+				<div id="labelin" hidden$="[[!haslabelin]]">{{_content}}</div>
+				<!-- template is="dom-if" if="{{redin}}" -->
+				<!-- had to resort to hidden$ because could not access dom-if children from js -->
+				<svg id="symbol" hidden$="[[!redin]]" width="40" height="25">
+					<rect id="rect" x="6" y="6" width="27" height="12" fill="#900"></rect>
+					<polygon id="tri" points="0,7.5 10,0 10,15" stroke="#ccc" fill="transparent"/>
+				</svg>
+				<!-- /template -->
+			</div>
+		</div>
+		<div id="label" hidden$="[[!hasbottomlabel]]">{{_content}}</div>
+		<cz-led id="bottomled" hidden$="{{!bottomled}}"></cz-led>
+	</div>
+	</div>
+</template>
+<script src="cz-button.js"></script>
+</dom-element>
+
+<!-- led at bottom, label at top -->
+<dom-element id="cz-button2">
+<template>
+	<link rel="stylesheet" href="cz-button.css">
+	<div id="czbuttonhost">
+	<div id="root">
+		<!-- there can be only one <content> (?) : cannot put it inside two elements (one of which is hidden$) -->
+		<!-- but <content> does not seem to work inside <dom-if> either : workaround -->
+		<div hidden><content id="content">{{_onContent()}}</content></div>
+		
+		<div id="inset">
+			<div id="button">
+				<div id="labelin" hidden$="[[!labelin]]">{{_content}}</div>
+				<!-- template is="dom-if" if="{{redin}}" -->
+				<!-- had to resort to hidden$ because could not access dom-if children in js -->
+				<svg id="symbol" hidden$="[[!redin]]">
+					<rect id="rect" x="6" y="6" width="27" height="12" fill="#900"></rect>
+					<polygon id="tri" points="0,7.5 10,0 10,15" stroke="#ccc" fill="transparent"/>
+				</svg>
+				<!-- /template -->
+			</div>
+		</div>
+		<div id="label" hidden$="[[labelin]]">{{_content}}</div>
+		<cz-led id="led" hidden$="{{!led}}"></cz-led>
+	</div>
+	</div>
+	<!-- div id="root">
+		<template if="{{!labelin}}">
+			<div id="label"><content/></div>
+		</template>
+		<div id="inset">
+			<div id="button">
+				<template if="{{labelin}}">
+					<div id="labelin"><content/></div>
+				</template>
+				<template if="{{redin}}">
+					<svg id="symbol">
+						<rect id="rect" x="6" y="6" width="27" height="12" fill="#900"></rect>
+						<polygon id="tri" points="0,7.5 10,0 10,15" stroke="#ccc" fill="transparent"/>
+					</svg>
+				</template>
+			</div>
+		</div>
+		<template if="{{led}}">
+			<cz-led id="led"></cz-led>
+		</template>
+	</div -->
+</template>
+<!-- script src="cz-button.js"></script -->
+</dom-element>

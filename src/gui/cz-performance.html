@@ -1,0 +1,86 @@
+<link rel="stylesheet" href="fonts.css">
+
+<dom-element id="cz-performance">
+<style>
+	* { box-sizing:border-box; }
+	#czperformancehost { float:left; display:block; 
+		width:290px; height:244px; margin-right:10px; margin-left:10px; }
+	.block { clear:both; }
+	.block cz-button { float:left; margin-right:5px; }
+	input[is=dg-number] { line-height:18px; text-align:center; 
+		width:30px; height:18px; background:none;
+		color:#ccc; border:1px solid #888; border-radius:3px; display:block; margin:auto; margin-top:4px; }
+	#portamento { margin-right:20px; }
+	.block div.label { margin-top:12px;
+		color:#ccc; font-size:8px; text-align:center; }
+	#header { backgroundx:#222; color:yellow; height:57px; padding-top:10px; }
+	#display { width:100%; height:126px; margin-bottom:12px;  
+		border:0px solid #222; padding-left:7px; color:#222;
+		background:#ddd; font-family:'lcd'; font-size:20px;
+	}
+	#header svg { font-size: 20px; font-family: montserrat; letter-spacing:3px;
+		height:28px; width:100%; }
+	#title { paint-order: stroke; stroke: rgba(255, 255, 0, 0.64); 
+		stroke-width:3px; fill:#444; }
+	#header div.label { text-align:left; margin:0; margin-left:10px; }
+	#header div span { color:rgba(255, 255, 0, 0.64); }
+</style>
+<template>
+	<div id="czperformancehost">
+	<div id="header" class="block">
+		<svg><text id="title" x='10' y="20">&lt;CZ-1O1/&gt;</text></svg>
+		<div class="label">DIGITAL PHASE DISTORTION SYNTHESIZER FOR <span>WEB</span></div>
+	</div>
+	<div class="block">
+		<div id="display">ASDF
+		</div>
+	</div>
+	<div class="block">
+		<cz-button id="vibrato" class="dark" led>VIBRATO</cz-button>
+		<cz-button id="solo" class="dark" led>SOLO</cz-button>
+		<cz-button id="portamento" class="dark" led>PORTAMENTO</cz-button>
+		<div style="float:left; padding-top:10px; margin-right:10px; margin-left:0px;">
+			<input id="portatime" is="dg-number" max="99" />
+			<div class="label">TIME</div>
+		</div>
+		<div style="float:left; padding-top:10px; margin-right:10px; ">
+			<input id="bend" is="dg-number" max="12" />
+			<div class="label">BEND</div>
+		</div>
+		<div style="float:left; padding-top:10px;">
+			<input id="transpose" is="dg-number" min="-5" max="5" />
+			<div class="label">TRANS</div>
+		</div>
+	</div>
+	</div>
+</template>
+<script>
+	// dot fonts
+	// http://fontstruct.com/fontstructions/show/otis (CC)
+	// http://fontstruct.com/fontstructions/show/5x7_dot_matrix
+	// http://fontstruct.com/fontstructions/show/lcd_dot_matrix_1
+	// http://fontstruct.com/fontstructions/show/lcd_dot_matrix_hd44780u
+	
+	Polymer({ is:"cz-performance",
+		ready: function ()
+		{
+			this.$.vibrato.addEventListener("change", this.relay);
+			this.$.solo.addEventListener("change", this.relay);
+			this.$.portamento.addEventListener("change", this.relay);
+			this.$.portatime.addEventListener("change", this.relay);
+			this.$.bend.addEventListener("change", this.relay);
+			this.$.transpose.addEventListener("change", this.relay);
+		},
+		relay: function (e) { this.fire("paramchange", { id:e.detail.sender.id, value:e.detail.value }); },
+		setPatch: function (patch, idpatch, idbank)
+		{
+			var name = patch.name || "NONAME";
+			var b = ["P","I","C","E"][idbank];
+			var p = "" + (idpatch + 1);
+			if (p.length == 1) p = "0" + p;
+			if (idpatch == -1) p = "**";
+			this.$.display.innerHTML = b + "-" + p + "<br/>" + name;
+		}
+	});
+</script>
+</dom-element>

@@ -1,0 +1,28 @@
+<dom-element id="cz-paramblock">
+<template>
+	<svg class="paramblock" width="113" height="30" id="svg">
+		<line id="line1" x1="27" x2="27" y1="0" y2="10" stroke="#ccc" stroke-width="1" />
+		<line id="line2" x1="87" x2="87" y1="0" y2="10" stroke="#ccc" stroke-width="1" />
+		<rect id="back" x="0" y="10" width="113" height="20" fill="#90acdb" transform="skewX(0)" />
+		<text id="plabel" x="57" y="25" fill="#555" text-anchor="middle" font-size="12px"></text>
+	</svg>
+	<div style="display:none"><content id="content"/></div>
+</template>
+<script>
+	Polymer({ is:"cz-paramblock",
+		ready: function ()
+		{
+			var content = Polymer.dom(this.$.content);
+			var text = content.getDistributedNodes();
+			this.$.plabel.textContent = text[0].data;
+			if (this.classList.contains("lo"))
+			{
+				this.$.back.setAttribute("transform", "skewX(0) translate(0,-10)");
+				this.$.line1.setAttribute("transform", "translate(0,20)");
+				this.$.line2.setAttribute("transform", "translate(0,20)");
+				this.$.plabel.setAttribute("transform", "translate(0,-10)");
+			}
+		}
+	});
+</script>
+</dom-element>

@@ -1,0 +1,30 @@
+* { font-family:sans-serif; box-sizing:border-box; }
+#czbuttonhost { widthx:42px; display:block; }
+cz-led.bottom { margin-top:5px; }
+#bottomled { margin-top:5px; }
+#inset { margin:auto; width:44px; height:29px; padding:2px; border-radius:2px; background:#222; overflow:hidden; }
+#button { width:40px; height:25px; cursor:pointer;
+	border-radius:2px; position:relative;
+	line-height:26px; text-align:center;
+	}
+#button { background:#b3aba4;
+	border-left: 1px solid #ccc; border-top: 1px solid #ccc; 
+	}
+#czbuttonhost.dark #button { background:#333;
+	border-left: 1px solid #555; border-top: 1px solid #555;
+	}
+#czbuttonhost.dark #inset .active {
+	border-left: 1px solid #333; border-top: 1px solid #333; }
+#czbuttonhost.light #button { background:#b3aba4;
+	border-left: 1px solid #ccc; border-top: 1px solid #ccc;
+	}
+#czbuttonhost.light #inset .active {
+	border-left: 1px solid #b3aba4; border-top: 1px solid #b3aba4; 
+	left:0px; top:1px;
+	}
+#label,#toplabel { color:#ccc; font-size:8px; text-align:center; }
+#label.bottom { margin-top:6px; } 
+#toplabel { margin:0 auto; margin-bottom:3px; }
+#rect { display:none; }
+#tri { transform-origin:5px 7.5px; display:none; }
+.active #symbol { transform: translate(0,1px); }

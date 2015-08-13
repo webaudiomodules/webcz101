@@ -1,0 +1,87 @@
+<dom-element id="cz-envelope">
+<template>
+<div id="czenvelopehost">
+	<div class="label">SUSTAIN</div>
+	<cz-selector id="sustain" canbeempty width="27" gap="5.5"></cz-selector>
+	<div id="rates">
+		<div class="label" style="margin-top:9px; width:39px;">RATE</div>
+		<input is="dg-number" id="rate1" max="99" />
+		<input is="dg-number" id="rate2" max="99" />
+		<input is="dg-number" id="rate3" max="99" />
+		<input is="dg-number" id="rate4" max="99" />
+		<input is="dg-number" id="rate5" max="99" />
+		<input is="dg-number" id="rate6" max="99" />
+		<input is="dg-number" id="rate7" max="99" />
+		<input is="dg-number" id="rate8" max="99" />
+	</div>
+	<div id="levels">
+		<div class="label" style="margin-top:8px; width:39px;">LEVEL</div>
+		<input is="dg-number" id="level1" max="99" />
+		<input is="dg-number" id="level2" max="99" />
+		<input is="dg-number" id="level3" max="99" />
+		<input is="dg-number" id="level4" max="99" />
+		<input is="dg-number" id="level5" max="99" />
+		<input is="dg-number" id="level6" max="99" />
+		<input is="dg-number" id="level7" max="99" />
+		<input is="dg-number" id="level8" max="99" />
+	</div>
+	<div id="selectors22">
+		<div class="label">END</div>
+		<cz-selector id="end" canbeempty width="27" gap="5.5"></cz-selector>
+	</div>
+</div>
+<style>
+	#czenvelopehost { display:block; margin-top:8px; }
+	#rates,#levels { clear:both; position:relative; top:-4px; }
+	#selectors22 { position:relative; top:2px; pointer-events:none; }
+	#czenvelopehost .label { color:#ccc; font-size:8px; float:left; width:45px; margin-top:0px;}
+	#rates input[is=dg-number], #levels input[is=dg-number] {
+		line-height:15px; text-align:center; font-size:10px;
+		width:30px; height:18px; background:none; float:left; padding:0;
+		color:#ccc; border:1px solid #888; border-radius:3px; }
+</style>
+</template>
+<script>
+	Polymer({ is:"cz-envelope",
+		ready: function ()
+		{
+			this.$.sustain.addEventListener("change", this.onsus.bind(this));
+			this.$.end.addEventListener("change", this.onend.bind(this));
+			for (var i=1; i<=8; i++)
+			{
+				this.$["rate"+i].addEventListener("change", this.relay.bind(this));
+				this.$["level"+i].addEventListener("change", this.relay.bind(this));
+			}
+		},
+		onsus: function (e) { this.fireEvent(e.detail.sender.id, e.detail.value+1); },
+		onend: function (e) { this.fireEvent(e.detail.sender.id, e.detail.value-1); },
+		relay: function (e) { this.fireEvent(e.detail.sender.id, e.detail.value); },		
+		fireEvent: function (id,value)
+		{
+			this.fire("paramchange", {
+				id: this.block + this.line + id,
+				value: value });
+		},
+		setParams: function (line, block, patch)
+		{
+			this.line  = line;
+			this.block = block.substr(0,3);
+			if (!patch) return;
+			
+			this.$.sustain.reset();
+			this.$.end.reset();
+			var line = patch.line[line-1];
+			var sect = line[this.block];
+			this.$.sustain.setValue(sect.sustain - 1);
+			this.$.end.setValue(sect.end + 1);
+			var rates  = this.$.rates.querySelectorAll("input");
+			var levels = this.$.levels.querySelectorAll("input");
+			for (var i=0; i<8; i++)
+			{
+				rates[i].value  = sect.rate[i];
+				levels[i].value = sect.level[i];
+			}
+		}
+	});
+</script>
+</dom-element>

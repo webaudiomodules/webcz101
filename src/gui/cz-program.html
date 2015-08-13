@@ -1,0 +1,147 @@
+<dom-element id="cz-program">
+<style>
+	#czprogramhost { display:inline-block; clear:both; padding-left:10px; }
+	#bankbuttons { float:left; }
+	#patchbuttons, #operbuttons { margin-left:20px; float:left; display:inline-block; }
+	#operbuttons { margin-left:30px; }
+	#patchlabels { padding-bottom:10px; }
+	#czprogramhost cz-button { display:inline-block; margin-right:10px; font-size:12px; }
+	#czprogramhost cz-button.light { display:inline-block; width:42px; margin:0; }
+	#select { font-size:8px !important; margin-top:12px !important; float:right; }
+	#selectled { float:right; margin-right:12px; }
+	#load { margin-right:0; }
+	#czprogramhost .patchlabel { width:45.5px; height:11px;
+		background:#90acdb; 
+		font-size:8px; line-height:12px; text-align:center;
+		display:inline-block; margin-right:1px;
+		}
+	#patchlabel9  { width:44px; }
+	#patchlabel16 { width:43px; }
+	#patchlabel17 { width:55px !important; position:relative; top:3px; }
+</style>
+<template>
+	<div id="czprogramhost">
+	<div id="bankbuttons">		
+		<cz-button id="bank0" led selected class="dark">PRESET</cz-button>
+		<cz-button id="bank1" led class="dark">INTERNAL</cz-button>
+		<cz-button id="bank2" led class="dark">CARTRIDGE</cz-button>
+	</div>
+	<div id="patchbuttons">		
+		<cz-button id="patch0" class="light" led labelin selected>1</cz-button>
+		<cz-button id="patch1" class="light" led labelin>2</cz-button>
+		<cz-button id="patch2" class="light" led labelin>3</cz-button>
+		<cz-button id="patch3" class="light" led labelin>4</cz-button>
+		<cz-button id="patch4" class="light" led labelin>5</cz-button>
+		<cz-button id="patch5" class="light" led labelin>6</cz-button>
+		<cz-button id="patch6" class="light" led labelin>7</cz-button>
+		<cz-button id="patch7" class="light" led labelin>8</cz-button>
+		<cz-button id="select" class="light" labelin>SELECT</cz-button>
+		<div id="patchlabels">
+			<div class="patchlabel" id="patchlabel9">9
+			</div><div class="patchlabel">10
+			</div><div class="patchlabel">11
+			</div><div class="patchlabel">12
+			</div><div class="patchlabel">13
+			</div><div class="patchlabel">14
+			</div><div class="patchlabel">15
+			</div><div class="patchlabel" id="patchlabel16">16
+			</div><div class="patchlabel" id="patchlabel17">
+				<cz-led id="selectled"></cz-led>
+			</div>
+		</div>
+	</div>
+	<div id="operbuttons">
+		<cz-button id="write" class="dark" led redin>WRITE</cz-button>
+		<cz-button id="save" class="dark">SAVE</cz-button>
+		<cz-button id="load" class="dark">LOAD</cz-button>
+		<input id="fileopen" type="file" style="display:none;"/>
+	</div>
+	</div>
+</template>
+<script>
+	Polymer({ is:"cz-program",
+		ready: function ()
+		{
+			var bankbuttons = this.$.bankbuttons.querySelectorAll("cz-button");
+			for (var i=0; i<bankbuttons.length; i++)
+				bankbuttons[i].addEventListener("click", this.onBank.bind(this), true);
+			var patchbuttons = this.$.patchbuttons.querySelectorAll("cz-button");
+			for (var i=0; i<patchbuttons.length; i++)
+				patchbuttons[i].addEventListener("click", this.onPatch.bind(this));
+			this.$.write.addEventListener("click", this.onWrite.bind(this));
+			
+			var self = this;
+			this.$.load.onclick = function () { self.$.fileopen.click(); }
+			this.$.fileopen.addEventListener("change", this.onLoad.bind(this));
+		},
+		s:
+		{
+			bank: 0,
+			patch: 0,
+			offset: 0,
+			writing: false
+		},
+		_getEventPath: function (e)
+		{
+			if (e.path) return e.path;
+			var path = [];
+			var node = e.target;
+			while (node && node != document.body)
+			{
+				path.push(node);
+				node = node.parentNode;
+			}
+			return path;
+		},
+		onBank: function (e)
+		{
+			var target = this._getEventPath(e)[5]; // e.path[5];
+			if (target.localName != "cz-button") return;
+			this.$["bank" + this.s.bank].selected = false;
+			this.s.bank = parseInt(target.id[4]);
+			target.selected = true;
+			if (!this.s.writing)
+			{
+				var pid = this.s.patch + this.s.offset;
+				this.fire("change", { type:"bank", idbank:this.s.bank, idpatch:pid });
+			}
+		},
+		onPatch: function (e)
+		{
+			var target = this._getEventPath(e)[5]; // e.path[5];
+			if (target.id != "select")
+			{
+				this.$["patch" + this.s.patch].selected = false;
+				this.s.patch = parseInt(target.id[5]);
+				target.selected = true;
+			}
+			else
+			{
+				this.s.offset += 8;
+				if (this.s.offset > 8) this.s.offset = 0;
+				this.$.selectled.active = !this.$.selectled.active;
+			}
+			if (this.s.writing)
+			{
+				this.s.writing = false;
+				this.$.write.selected = false;
+			}
+			else
+			{
+				var pid = this.s.patch + this.s.offset;
+				this.fire("change", { type:"patch", idbank:this.s.bank, idpatch:pid });
+			}
+		},
+		onWrite: function ()
+		{
+			this.s.writing = !this.s.writing;
+		},
+		onLoad: function (e)
+		{
+			var file = e.target.files[0];
+			if (!file) return;
+			this.fire("load", { url:file.name, data:file });
+		}		
+	});
+</script>
+</dom-element>

@@ -1,0 +1,72 @@
+<dom-element id="dg-number">
+<style>
+	input[is=dg-number] { cursor:default; }
+	input[is=dg-number].inactive { pointer-events: none; }
+</style>
+<script>
+	Polymer({ is:"dg-number", extends:"input",
+		properties: {
+			precision: { type:Number, value:0 },
+			usekeys: { type:Boolean, value:false }
+		},
+		ready: function ()
+		{
+			if (!this.min)  this.min = 0;
+			if (!this.max)  this.max = 100;
+			if (!this.step) this.step = 1;
+			this.range_ = this.max - this.min;
+			this.addEventListener("mousedown", this, true);
+			if (!this.usekeys)
+				this.style.cursor = "default";
+		},
+		handleEvent: function (e)
+		{
+			if (e.type == "mousedown")
+			{
+				this.prevpos_ = e.clientY;
+				this.curvalue_ = parseFloat(e.target.value);
+				if (isNaN(this.curvalue_)) this.curvalue_ = 0;
+				window.addEventListener("mousemove", this, false);
+				window.addEventListener("mouseup", this, false);
+				if (!this.usekeys) e.preventDefault(); 
+			}
+			else if (e.type == "mousemove")
+			{
+				var p = e.clientY;
+				var d = (this.prevpos_ - p);
+				this.updateValue(d);
+				this.prevpos_ = p;
+			}
+			else if (e.type == "mouseup")
+			{
+				window.removeEventListener("mousemove", this, false);
+				window.removeEventListener("mouseup", this, false);
+			}
+		},
+		prevpos_: 0,
+		curvalue_: 0,
+		range_: 1,
+		updateValue: function (delta)
+		{
+			var prev = this.value;
+			delta = delta * (this.range_ / 100);
+			var v = delta * this.step + this.curvalue_;
+			if (v < this.min) v = parseFloat(this.min);
+			if (v > this.max) v = parseFloat(this.max);
+			if (this.precision > 0)
+			{
+				v = v.toFixed(this.precision);
+				this.curvalue_ = parseFloat(v);
+				this.value = this.curvalue_;
+			}
+			else
+			{
+				this.curvalue_ = v;
+				this.value = this.curvalue_ | 0;
+			}
+			if (this.value != prev)
+				this.fire("change", { sender:this, value:parseFloat(this.value) });
+		}
+	});
+</script>
+</dom-element>

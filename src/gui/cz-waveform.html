@@ -1,0 +1,43 @@
+<dom-element id="cz-waveform">
+<template>
+	<div id="czwaveformhost">
+		<div>WAVE 1</div>
+		<cz-selector id="wave1"></cz-selector>
+		<img src="waveforms.svg"/>
+		<div>WAVE 2</div>
+		<cz-selector id="wave2" canbeempty></cz-selector>
+	</div>
+<style>
+	#czwaveformhost { display:block; margin-top:14px; }
+	#czwaveformhost div { color:#ccc; font-size:8px; float:left; }
+	#czwaveformhost img { margin:5px 0 14px 46px; clear:both;
+		display:block; position:relative; top:6px; }
+</style>
+</template>
+<script>
+	Polymer({ is:"cz-waveform",
+		ready: function ()
+		{
+			this.$.wave1.addEventListener("change", this.relay.bind(this));
+			this.$.wave2.addEventListener("change", this.relay.bind(this));
+		},
+		relay: function (e)
+		{
+			this.fire("paramchange", {
+				id: "dco" + this.line + e.detail.sender.id,
+				value: e.detail.value });
+		},
+		setParams: function (line, block, patch)
+		{
+			this.line = line;
+			if (!patch) return;
+			this.$.wave1.reset();
+			this.$.wave2.reset();
+			var line  = patch.line[line-1];
+			var wave2 = line.dco.wave2on ? line.dco.wave2 : -1;
+			this.$.wave1.setValue(line.dco.wave1);
+			this.$.wave2.setValue(wave2);
+		}
+	});
+</script>
+</dom-element>

@@ -1,0 +1,121 @@
+<script src="../libs/polymer103/webcomponents-lite.min.js"></script>
+<link rel="import" href="../libs/polymer103/polymer.html">
+<link rel="import" href="../libs/dg-number.html"/>
+<link rel="import" href="../libs/wam-keys.html">
+<link rel="import" href="gui/cz-led.html"/>
+<link rel="import" href="gui/cz-button.html"/>
+<link rel="import" href="gui/cz-program.html"/>
+<link rel="import" href="gui/cz-performance.html"/>
+<link rel="import" href="gui/cz-parameters.html"/>
+
+<script src="../../api/src/controller.js"></script>
+<script src="../../api/src/processor.js"></script>
+<script src="../../api/src/datachannel.js"></script>
+<script src="../../api/src/wamutils.js"></script>
+<script src="cz101-controller.js"></script>
+<script src="cz101-memory.js"></script>
+<script src="cz101-patch.js"></script>
+<script src="cz-sysex.js"></script>
+<script src="cz101-asm.js"></script>
+
+<dom-element id="wam-webcz101">
+<style>
+	#gui { font-family:sans-serif; background:#000; padding:5px; width:876px; }
+	#gui header { background:#444; backgroundx:linear-gradient(180deg, #5c5c5c, #414141);
+		box-sizing:border-box;  border-radius:4px; width:100%; height:50px; line-height:50px; margin-bottom:2px;
+		padding-left:10px; font-family:"open sans"; color:white; }
+	#frontpanel { 
+		-webkit-user-select:none; box-sizing:border-box;
+		min-width:866px; max-width:866px; padding:10px; margin:0px auto; 
+		cursor:default;
+		margin-bottom:2px; background-image: url(gui/backnoise.png); border-radius:4px; }
+	cz-program { margin-left:12px; height:68px; width:805px; border-bottom:1px solid #ccc; }
+	cz-parameters { display:inline-block; }
+	cz-performance { float:left; }
+	#edit { display:inline-block; margin-top:10px; }
+	input[is=dg-number] { cursor:pointer !important; }
+	#gui .title { float:left; }
+	#gui .headercontrol { height:100%; float:right !important; margin-right:10px; }
+	#gui .headercontrol .hlabel { line-height:14px; margin:3px 0 1px 1px;
+		font-size:10px !important; font-weight:100; color:#ddd; }
+	#midiport { display:none; }
+</style>
+<template>
+	<div id="gui">
+		<header>
+			<div class="title">webCZ-101</div>
+			<div id="midiport" class="headercontrol">
+				<div class="hlabel">MIDI input</div>
+				<select id="midiports" on-change="_onport"></select>
+			</div>
+		</header>
+		<div id="frontpanel">
+			<cz-program id="programsection"></cz-program>
+			<div id="edit">
+				<cz-performance id="performsection"></cz-performance>
+				<cz-parameters  id="paramsection"></cz-parameters>
+			</div>
+		</div>
+		<wam-keys id="vkeys" width="820" octaves="7" hilite="#90acdb"></wam-keys>
+	</div>
+</template>
+<script>
+	Polymer({ is:"wam-webcz101",
+		properties: {
+			autoconnect: Boolean,
+			keyboard: { type: String, value:"true", observer: "_onkeyboard" },
+			buffersize: { type: Number, value:256 }
+		},
+		init: function (actx, bufsize)
+		{
+			this.controller = this.$.vkeys.controller = new WAM.Synths.webCZ101();
+			return this.controller.init(actx, bufsize);
+		},
+		ready: function ()
+		{
+			this.$.programsection.addEventListener("load",   function (e) { this.fire("czload", e.detail); });
+			this.$.programsection.addEventListener("change", function (e) { this.fire("czprogchange", e.detail); });
+			this.$.performsection.addEventListener("paramchange", function (e) { this.fire("czparamchange", e.detail); });
+			this.$.paramsection.addEventListener("paramchange", function (e) { this.fire("czparamchange", e.detail); });
+			if (this.autoconnect) WAM.utils.autoconnect(this);
+			this._setupMidi();			
+		},
+		setPatch: function (patch, idpatch, idbank)
+		{
+			this.$.performsection.setPatch(patch, idpatch, idbank);
+			this.$.paramsection.setPatch(patch);
+		},
+		_onkeyboard: function ()
+		{
+			this.$.vkeys.enabled = this.keyboard;
+			this.$.vkeys.style.display = this.keyboard === "true" ? "block" : "none";
+		},
+
+		// -- midi
+		_setupMidi: function ()
+		{
+			WAM.utils.getMidiInputs(function (ports)
+			{
+				this._midiports = ports;
+				if (!ports || ports.length == 0) return;
+				var combo = this.$.midiports;
+				for (var i=0; i<ports.length; i++)
+					Polymer.dom(combo).appendChild(new Option(ports[i].name));
+				this._midiport = (ports.length > 1) ? ports[1] : ports[0];
+				combo.selectedIndex = (ports.length > 1) ? 1 : 0;
+				this.controller.connect(this._midiport);
+			}.bind(this));			
+			if (WAM.Environment.hasMIDI) this.$.midiport.style.display = "block";			
+		},
+		_onport: function (e)
+		{
+			var index = this.$.midiports.selectedIndex;
+			this.controller.disconnectMidi();
+			this._midiport = this._midiports[index];
+			if (this._midiport) this.controller.connect(this._midiport);
+		},
+		_midiport: null,
+		_midiports: []
+	});
+</script>
+</dom-element>

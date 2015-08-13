@@ -1,0 +1,55 @@
+<dom-element id="cz-vibrato">
+<style>
+	.czvibratohost { margin:16px 15px 0 0; float:left; }
+	.czvibratohost .vlabel { color:#ccc; font-size:8px; float:left; width:30px; margin-top:8px; }
+	.czvibratohost input[is=dg-number] { line-height:15px !important; text-align:center; 
+		width:30px; height:18px; background:none; float:left; font-size:10px;
+		color:#ccc; border:1px solid #888; border-radius:3px; padding:0; }
+	.czvibratohost > div { clear:both; margin-bottom: 5px; }
+	
+	.czvibratohostx > div > div { float:left; margin-right:10px; }
+	#czvibratohost2x { display:none; }
+</style>
+<template>
+	<div class="czvibratohost" id="czvibratohost">
+		<div>
+			<div class="vlabel">WAVE</div>
+			<input is="dg-number" id="wave" min="1" max="4" />
+		</div>
+		<div>
+			<div class="vlabel">DELAY</div>
+			<input is="dg-number" id="delay" max="99" />
+		</div>
+	</div>
+	<div class="czvibratohost" id="czvibratohost2">
+		<div>
+			<div class="vlabel">RATE</div>
+			<input is="dg-number" id="rate" max="99" />
+		</div>
+		<div>
+			<div class="vlabel">DEPTH</div>
+			<input is="dg-number" id="depth" max="99" />
+		</div>
+	</div>
+</template>
+<script>
+	Polymer({ is:"cz-vibrato",
+		ready: function ()
+		{
+			this.$.wave.addEventListener("change", this.relay);
+			this.$.delay.addEventListener("change", this.relay);
+			this.$.rate.addEventListener("change", this.relay);
+			this.$.depth.addEventListener("change", this.relay);
+		},
+		relay: function (e) { this.fire("paramchange", { id:e.detail.sender.id, value:e.detail.value }); },
+		setParams: function (line, block, patch)
+		{
+			if (!patch) return;
+			this.$.wave.value  = patch.vibrato.wave;
+			this.$.delay.value = patch.vibrato.delay;
+			this.$.rate.value  = patch.vibrato.rate;
+			this.$.depth.value = patch.vibrato.depth;
+		}
+	});
+</script>
+</dom-element>

@@ -1,0 +1,22 @@
+<dom-element id="cz-led">
+<style>
+	#czledhost { display:block; box-sizing:border-box; }
+	#czledhost div { width:12px; height:4px; background:#222; margin:3px auto 5px auto; }
+	#czledhost.active div { background:#F00; box-shadow: 0 1px 6px #F00, inset 1px 1px 2px #300; }
+</style>
+<template>
+	<div id="czledhost">
+		<div></div>
+	</div>
+</template>
+<script>
+	Polymer({ is:"cz-led",
+		properties: { active:{ type:Boolean, value:false, observer:"_onactive" }},
+		_onactive: function ()
+		{
+			if (this.active) this.$.czledhost.classList.add("active");
+			else this.$.czledhost.classList.remove("active");
+		}
+	});
+</script>
+</dom-element>

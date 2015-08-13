@@ -1,0 +1,104 @@
+<dom-element id="cz-line1buttons">
+<style>
+	#buttonrow { clear:both; height:47px; }
+#buttonrowx cz-button, #buttonrow cz-button2 { display:inline-block; width:55px; }
+	#buttonrow cz-button, #buttonrow cz-button2 { float:left; width:55px; margin-right:5px;}
+	#buttonrow div.label { color:#ccc; font-size:8px; }
+	#buttonrow div.label { position:relative; top:1px; display:block; }
+	#buttonrow input[is=dg-number] { font-size:10px; line-height:15px !important;
+		position:relative; left:4px; top:10px !important; }
+	#buttonrow .numberbox { width:53px; margin-right:3px; }
+	#buttonrow .numberbox { float:left; position:relative; top:-7px; }
+	#dca1env { width:48px; margin-leftx:3px; }
+</style>
+<template>
+	<div id="buttonrow">
+		<cz-button class="light" bottomled id="dco1wave" toplabel selected>WAVEFORM</cz-button>
+		<cz-button class="light" bottomled id="dco1env" toplabel>ENV</cz-button>
+		<div class="numberbox">
+			<div class="label" style="width:55px;">KEY FOLLOW</div>
+			<input is="dg-number" id="dcw1keyfollow" max="9" />
+		</div>
+		<cz-button class="light" bottomled toplabel id="dcw1env">ENV</cz-button>
+		<div class="numberbox">
+			<div class="label" style="width:55px;">KEY FOLLOW</div>
+			<input is="dg-number" id="dca1keyfollow" max="9" />
+		</div>
+		<cz-button class="light" bottomled toplabel id="dca1env">ENV</cz-button>
+	</div>
+</template>
+<script>
+	Polymer({ is:"cz-line1buttons",
+		ready: function ()
+		{
+			this.$.dcw1keyfollow.addEventListener("change", this.relay);
+			this.$.dca1keyfollow.addEventListener("change", this.relay);
+		},
+		relay: function (e) { this.fire("paramchange", { id:e.detail.sender.id, value:e.detail.value }); },
+		select: function (id, onoff)
+		{
+			onoff = onoff == undefined ? true : onoff;
+			this.$[id].selected = onoff;
+		},
+		setParams: function (line, block, patch)
+		{
+			this.$.dcw1keyfollow.value = patch.line[line-1].dcw.keyfollow;
+			this.$.dca1keyfollow.value = patch.line[line-1].dca.keyfollow;
+		}		
+	});
+</script>
+</dom-element>
+
+<dom-element id="cz-line2buttons">
+<template>
+	<div id="buttonrow2">
+		<cz-button class="light" led id="dco2wave" auto="false">WAVE FORM</cz-button>
+		<cz-button class="light" led id="dco2env" auto="false">ENV</cz-button>
+		<div class="numberbox">
+			<input is="dg-number" id="dcw2keyfollow" max="9" />
+			<div class="label" style="width:55px;">KEY FOLLOW</div>
+		</div>
+		<cz-button class="light" led id="dcw2env" auto="false">ENV</cz-button>
+		<div class="numberbox">
+			<input is="dg-number" id="dca2keyfollow" max="9" />
+			<div class="label" style="width:55px;">KEY FOLLOW</div>
+		</div>
+		<cz-button class="light" led id="dca2env" auto="false">ENV</cz-button>
+	</div>
+<style>
+	#buttonrow2 cz-button { display:inline-block; width:55px; }
+	#buttonrow2 div.label { color:#ccc; font-size:8px; display:inline-block; }
+	#buttonrow2 input[is=dg-number] { line-height:18px; text-align:center; 
+		width:30px; height:18px; background:none;
+		color:#ccc; border:1px solid #888; border-radius:3px; }
+	#buttonrow2 { display:block; clear:both; height:47px; }
+	#buttonrow2 input[is=dg-number] { position:relative; left:11px; top:6px; }
+	#buttonrow2 div.label { margin-left:2px; margin-top:23px; }
+	#dca2env { width:48px; margin-left:3px; }
+	#buttonrow2 .numberbox { display:inline-block;
+		height:47px; width:53px; position:relative; top:0px; left:-2px; }
+	#buttonrow2 input[is=dg-number] { font-size:10px; line-height:15px !important;
+		position:relative; left:6px; top:7px !important; }
+</style>
+</template>
+<script>
+	Polymer({ is:"cz-line2buttons",
+		ready: function ()
+		{
+			this.$.dcw2keyfollow.addEventListener("change", this.relay);
+			this.$.dca2keyfollow.addEventListener("change", this.relay);
+		},
+		relay: function (e) { this.fire("paramchange", { id:e.detail.sender.id, value:e.detail.value }); },
+		select: function (id, onoff)
+		{
+			onoff = onoff == undefined ? true : onoff;
+			this.$[id].selected = onoff;
+		},
+		setParams: function (line, block, patch)
+		{
+			this.$.dcw2keyfollow.value = patch.line[line-1].dcw.keyfollow;
+			this.$.dca2keyfollow.value = patch.line[line-1].dca.keyfollow;
+		}
+	});
+</script>
+</dom-element>

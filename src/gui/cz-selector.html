@@ -1,0 +1,185 @@
+<dom-element id="cz-selector">
+<style>
+	#selectors { height:10px; margin-left:14px; box-sizing:border-box; }
+	#selectors div { float:left; margin-right:6px !important; width:30px !important;
+		height:8px; border:1px solid #888; pointer-events:all; cursor:pointer; }
+	#selectors div:hover { border:1px solid #bbb; }
+	#selectors div.selected { border:1px solid lightgreen; background:lightgreen; }
+</style>
+<template>
+	<div id="selectors">
+		<div id="s0"></div>
+		<div id="s1"></div>
+		<div id="s2"></div>
+		<div id="s3"></div>
+		<div id="s4"></div>
+		<div id="s5"></div>
+		<div id="s6"></div>
+		<div id="s7"></div>
+	</div>
+</template>
+<script>
+	Polymer({ is:"cz-selector", // 9 25
+		properties: {
+			width: { type:Number, value: 22 },
+			gap: { type:Number, value:10 },
+			canbeempty: { type:Boolean, value:false },
+		},
+		value: -1,
+		setValue: function (v)	// problems with data binding
+		{
+			if (v >= 0)
+				this.$["s" + v].classList.add("selected");
+			this.value = v;
+		},
+		ready: function ()
+		{
+			var selectors = this.$.selectors.querySelectorAll("div");
+			for (var i=0; i<selectors.length; i++)
+			{
+				selectors[i].style.width = this.width + "px";
+				selectors[i].style.marginRight = this.gap + "px";
+				selectors[i].addEventListener("click", this.onSelect.bind(this));
+			}
+		},
+		reset: function ()
+		{
+			if (this.value != -1)
+			{
+				this.$["s" + this.value].classList.remove("selected");
+				this.setValue(-1);
+			}
+		},
+		onSelect: function (e)
+		{
+			var v = parseInt(e.target.id[1]);
+			var turnoff = (v == this.value);
+			this.reset();
+			if (turnoff && this.canbeempty)
+				v = -1;
+			this.fire("change", { sender:this, value:v });
+			this.setValue(v);
+		}
+	});
+</script>
+</dom-element>
+
+<dom-element id="cz-selector2">
+<template>
+	<div id="selectors2">
+		<div id="s0">1</div>
+		<div id="s2">1+1'</div>
+		<div id="s3">1+2'</div>
+		<div id="s1">2</div>
+	</div>
+<style>
+	#selectors2 { box-sizing:border-box; }
+	#selectors2 div { float:left; margin-bottom:18px; width:30px; height:17px; 
+		border:1px solid #888; color:#ccc; font-size:10px; 
+		line-height:17px; text-align:center; cursor:pointer; }
+	#selectors2 div:hover { border:1px solid #bbb; }
+	#selectors2 div.selected { border:1px solid lightgreen; background:lightgreen; color:#222; }
+</style>
+</template>
+<script>
+	Polymer({ is:"cz-selector2",
+		properties: { value: { type:Number, value:-1 }},
+		setValue: function (v)	// problems with data binding
+		{
+			if (v >= 0)
+				this.$["s" + v].classList.add("selected");
+			this.value = v;
+		},
+		ready: function ()
+		{
+			var selectors = this.$.selectors2.querySelectorAll("div");
+			for (var i=0; i<selectors.length; i++)
+			{
+				selectors[i].addEventListener("click", this.onSelect.bind(this));
+				selectors[i].onselectstart = function () { return false; }
+			}
+		},
+		reset: function ()
+		{
+			if (this.value != -1)
+			{
+				this.$["s" + this.value].classList.remove("selected");
+				this.setValue(-1);
+			}
+		},
+		onSelect: function (e)
+		{
+			if (this.value != -1)
+				this.$["s" + this.value].classList.remove("selected");
+			var v = parseInt(e.target.id[1]);
+			if (v == this.value && this.canbeempty)
+				this.value = -1;
+			else
+			{
+				this.value = v;
+				e.target.classList.add("selected");
+			}
+			this.fire("change", { sender:this, value:v+1 });
+		}
+	});
+</script>
+</dom-element>
+
+<dom-element id="cz-selector3" attributes="value">
+<style>
+	#selectors3 { box-sizing:border-box; }
+	#selectors3 div { float:left; margin-top:2px; margin-right:5px; width:20px; height:12px; 
+		border:1px solid #888; color:#ccc; font-size:10px; 
+		line-height:8px; text-align:center; cursor:pointer; }
+	#selectors3 div:hover { border:1px solid #bbb; }
+	#selectors3 div.selected { border:1px solid lightgreen; background:lightgreen; color:#222; }
+</style>
+<template>
+	<div id="selectors3">
+		<div id="s0">+</div>
+		<div id="s2">-</div>
+	</div>
+</template>
+<script>
+	Polymer({ is:"cz-selector3",
+		properties: { value: { type:Number, value:-1 }},
+		setValue: function (v)	// problems with data binding
+		{
+			if (v >= 0)
+				this.$["s" + v].classList.add("selected");
+			this.value = v;
+		},
+		ready: function ()
+		{
+			var selectors = this.$.selectors3.querySelectorAll("div");
+			for (var i=0; i<selectors.length; i++)
+			{
+				selectors[i].addEventListener("click", this.onSelect.bind(this));
+				selectors[i].onselectstart = function () { return false; }
+			}
+		},
+		reset: function ()
+		{
+			if (this.value != -1)
+			{
+				this.$["s" + this.value].classList.remove("selected");
+				this.setValue(-1);
+			}
+		},
+		onSelect: function (e)
+		{
+			if (this.value != -1)
+				this.$["s" + this.value].classList.remove("selected");
+			var v = parseInt(e.target.id[1]);
+			if (v == this.value && this.canbeempty)
+				this.value = -1;
+			else
+			{
+				this.value = v;
+				e.target.classList.add("selected");
+			}
+			this.fire("change", { sender:this, value:v+1 });
+		}
+	});
+</script>
+</dom-element>

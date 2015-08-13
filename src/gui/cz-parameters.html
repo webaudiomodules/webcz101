@@ -1,0 +1,180 @@
+<link rel="import" href="cz-linebuttons.html"/>
+<link rel="import" href="cz-paramblock.html"/>
+<link rel="import" href="cz-selector.html"/>
+<link rel="import" href="cz-waveform.html"/>
+<link rel="import" href="cz-envelope.html"/>
+<link rel="import" href="cz-vibrato.html"/>
+<link rel="import" href="cz-mod.html"/>
+
+<dom-element id="cz-parameters">
+<style>
+	#czparametershost { float:left; box-sizing:border-box; 
+		height:256px; position:relative; }
+	#blocklabels { height:30px; margin-top:8px; }
+	#blocklabels2 { height:31px; }
+	#czparametershost .block { height:100%; float:left; display:inline-block; }
+	#toneglobal { float:left; border-right:1px solid #90acdb;
+		padding:10px 5px 10px 5px; height:128px !important; margin-top:65px; }
+	#editarea { clear:both; width:341px; height:84px;
+		padding-left:5px; border: 1px solid transparent;  }
+	#tonemod { border:1px solid #90acdb; 
+		padding:10px 5px 10px 5px; height:87px;
+		position:absolute; left:428px; top:84px;
+		}
+	#lineselect { float:left; width:22px; padding-top:65px; height:205px; 
+		position:relative; left:-4px; }
+	#envelope, #vibratoparams, #modparams { display:none; }
+	#czparametershost input[is=dg-number] { line-height:15px; text-align:center; 
+		width:30px; height:18px; background:none; margin-left:6px;
+		color:#ccc; border:1px solid #888; border-radius:3px; 
+		font-size:10px; padding:0; }
+	#czparametershost .label { color:#ccc; font-size:8px; margin-left:0px; margin-top:5px; }
+	#vibrato { margin-bottom:10px; }
+	#blockx { margin-top:8px; }
+	#tonelines { float:left; }
+	#octave { display:inline-block; }
+</style>
+<template>
+	<div id="czparametershost">
+	<div id="toneglobal" class="block" style="float:left;">
+		<cz-button class="light" id="vibrato" led>VIBRATO</cz-button>
+		<div style="width:42px;">
+			<input id="octave" is="dg-number" min="-1" max="1" />
+			<div class="label">OCTAVE</div>
+		</div>
+	</div>
+	<svg width="12" id="blockx" height="240" style="float:left;">
+		<polyline points="0,67 4,65 8,69 12,67" stroke="#ccc" stroke-width="1" fill="none" />
+		<polyline points="0,173 4,171 8,175 12,173" stroke="#ccc" stroke-width="1" fill="none" />
+	</svg>
+	<div id="tonelines" class="blockx">
+		<cz-line1buttons id="line1"></cz-line1buttons>
+		<div id="blocklabels">
+			<cz-paramblock class="hi first">DCO 1</cz-paramblock>
+			<cz-paramblock class="hi">DCW 1</cz-paramblock>
+			<cz-paramblock class="hi">DCA 1</cz-paramblock>
+		</div>
+		<div id="editarea">
+			<cz-waveform id="waveform"></cz-waveform>
+			<cz-envelope id="envelope"></cz-envelope>
+			<cz-vibrato id="vibratoparams"></cz-vibrato>
+			<cz-mod id="modparams"></cz-mod>
+		</div>
+		<div id="blocklabels2">
+			<cz-paramblock class="lo first">DCO 2</cz-paramblock>
+			<cz-paramblock class="lo">DCW 2</cz-paramblock>
+			<cz-paramblock class="lo">DCA 2</cz-paramblock>
+		</div>
+		<cz-line2buttons id="line2"></cz-line2buttons>
+	</div>
+	<svg width="77" height="240" style="float:left; position:relative; top:7px; left:-3px;">
+		<line x1="0" x2="77" y1="67" y2="67" stroke="#ccc" stroke-width="1" />
+		<line x1="0" x2="77" y1="173" y2="173" stroke="#ccc" stroke-width="1" />
+		<line x1="37" x2="37" y1="67" y2="77" stroke="#ccc" stroke-width="1" />
+		<line x1="37" x2="37" y1="173" y2="163" stroke="#ccc" stroke-width="1" />
+		<line x1="64" x2="77" y1="102" y2="102" stroke="#ccc" stroke-width="1" />
+		<line x1="64" x2="77" y1="137" y2="137" stroke="#ccc" stroke-width="1" />
+	</svg>
+	<div id="tonemod">
+		<cz-button class="light" id="mod" led>MOD</cz-button>
+	</div>
+	<div id="lineselect">
+		<cz-selector2 id="lineout"></cz-selector2>
+	</div>
+	</div>
+</template>
+<script>
+	Polymer({ is:"cz-parameters",
+		ready: function ()
+		{
+			this.$.line1.addEventListener("click", this.onCategory.bind(this));
+			this.$.line2.addEventListener("click", this.onCategory.bind(this));
+			this.$.vibrato.addEventListener("click", this.onCategory.bind(this));
+			this.$.mod.addEventListener("click", this.onCategory.bind(this));
+			
+			var self = this;
+			this.$.lineout.addEventListener("change", this.relay);
+			this.$.octave.addEventListener("change", function (e)
+			{
+				self.fire("paramchange", { id:e.detail.sender.id, value:e.detail.value+1 });
+			});
+		},
+		relay: function (e) { this.fire("paramchange", { id:e.detail.sender.id, value:e.detail.value }); },
+		category_: "dco1wave",
+		editcontent_: "waveform",
+		block_: "dco1wave",
+		line_: 1,
+		_getEventPath: function (e)
+		{
+			if (e.path) return e.path;
+			var path = [];
+			var node = e.target;
+			while (node && node != document.body)
+			{
+				path.push(node);
+				node = node.parentNode;
+			}
+			return path;
+		},
+		onCategory: function (e)
+		{			
+			// -- get id of clicked button
+			var path = this._getEventPath(e);
+			if (!path[5].localName || path[5].localName.indexOf("cz-button") != 0)
+				return;
+			var id = path[5].id;
+			if (id == this.category_) return;
+
+			// -- hide previous category
+			var prev = this.$[this.category_];
+			if (prev)
+				prev.selected = false;
+			else
+			{
+				var line = this.category_.indexOf("1") > 0 ? 1 : 2;
+				this.$["line"+line].select(this.category_, false);
+			}
+			if (this.editcontent_)
+				this.$[this.editcontent_].style.display = "none";
+
+			// -- show new category
+			var c;
+			this.category_ = id;
+			if (id.indexOf("env") > 0)			c = "envelope";
+			else if (id.indexOf("wave") > 0)	c = "waveform";
+			else if (id == "vibrato")			c = "vibratoparams";
+			else if (id == "mod")				c = "modparams";
+			if (c)
+				this.$[c].style.display = "block";
+			this.editcontent_ = c;
+			
+			var line = 0;
+			if (id.indexOf("1") > 0) line = 1;
+			else if (id.indexOf("2") > 0) line = 2;
+			if (line)
+			{
+				this.$["line"+line].select(id);
+				// this.editcontent_.line = line;
+			}
+			else this.$[id].selected = true;	// vibrato and mod
+			this.line_ = line;
+			this.block_ = id;
+			
+			this.$[c].setParams(line, id, this.patch);
+		},
+		
+		patch: null,
+		setPatch: function (patch)
+		{
+			this.patch = patch;
+			this.$[this.editcontent_].setParams(this.line_, this.block_, this.patch);
+			
+			this.$.octave.value = patch.octave;
+			this.$.line1.setParams(1, "", this.patch);
+			this.$.line2.setParams(2, "", this.patch);
+			this.$.lineout.reset();
+			this.$.lineout.setValue(this.patch.line.out);
+		}
+	});
+</script>
+</dom-element>

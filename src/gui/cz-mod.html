@@ -1,0 +1,85 @@
+<dom-element id="cz-mod">
+<style>
+	#czmodhost { display:inline-block; width:100%; margin-top:0px; }
+	#czmodhost .dblock{ float:left; margin-right:10px; }
+	#czmodhost .dblock > div { clear:both; }
+	#detune div { margin-bottom:6px; margin-left:5px; }
+	#czmodhost .dlabel { color:#ccc; font-size:8px; margin-top:7px; float:left; }
+	#czmodhost .dblock input[is=dg-number] { line-height:15px; text-align:center; 
+		width:30px; height:18px; background:none; font-size:10px; padding:0;
+		color:#ccc; border:1px solid #888; border-radius:3px; float:left;
+		white-space:nowrap; }
+	#detune { padding-top:4px; width:108px; }
+	#czmodhost .butt { margin-top:15px; float:right; margin-right:0; }
+	#czmodhost cz-button { display:inline-block; width:46px; margin-left:5px;  }
+	#polarity { float:left; padding-top:10px; padding-left:5px; }
+</style>
+<template>
+<div id="czmodhost">
+	<div id="detune" class="dblock">
+		<div>
+			<input is="dg-number" id="detoct" min="0" max="3" />
+			<div class="dlabel">DETUNE OCT</div>
+		</div>
+		<div>
+			<input is="dg-number" id="detnote" min="0" max="11" />
+			<div class="dlabel">DETUNE NOTE</div>
+		</div>
+		<div>
+			<input is="dg-number" id="detfine" min="0" max="60" />
+			<div class="dlabel">DETUNE FINE</div>
+		</div>
+	</div>
+	<div id="polarity">
+		<div class="dlabel">DETUNE POLARITY</div>
+		<cz-selector3 id="detdir"></cz-selector3>
+	</div>
+	<div class="butt">
+		<cz-button id="rm" led class="dark" auto="true">RING MOD</cz-button>
+		<cz-button id="nm" led class="dark" auto="true">NOISE MOD</cz-button>
+	</div>
+</div>
+</template>
+<script>
+	Polymer({ is:"cz-mod",
+		ready: function ()
+		{
+			this.$.rm.addEventListener("click", this.onrm.bind(this));
+			this.$.nm.addEventListener("click", this.onnm.bind(this));
+			this.$.detoct.addEventListener("change", this.relay);
+			this.$.detnote.addEventListener("change", this.relay);
+			this.$.detfine.addEventListener("change", this.relay);
+			this.$.detdir.addEventListener("change", this.relay);
+		},
+		relay: function (e) { this.fire("paramchange", { id:e.detail.sender.id, value:e.detail.value }); },
+		setParams: function (line, block, patch)
+		{
+			if (!patch) return;
+			this.$.detoct.value  = patch.detune.oct;
+			this.$.detnote.value = patch.detune.note;
+			this.$.detfine.value = patch.detune.fine;
+			this.$.detdir.reset();
+			this.$.detdir.setValue(patch.detune.dir);
+			this.$.rm.selected = patch.mod == 1;
+			this.$.nm.selected = patch.mod == 2;
+		},
+		onrm: function ()
+		{
+			if (this.$.nm.selected) this.$.nm.selected = false;
+			this.fire("paramchange", { id:"mod", value:this.getMod() });
+		},
+		onnm: function ()
+		{
+			if (this.$.rm.selected) this.$.rm.selected = false;			
+			this.fire("paramchange", { id:"mod", value:this.getMod() });
+		},
+		getMod: function ()
+		{
+			var value = 0;
+			if (this.$.rm.selected) value = 2;
+			else if (this.$.nm.selected) value = 2;
+			return value;
+		}
+	});
+</script>
+</dom-element>
