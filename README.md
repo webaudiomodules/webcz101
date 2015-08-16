@@ -1,5 +1,5 @@
 # webCZ101
-Virtual Casio CZ101 synth in a browser
+Virtual CZ101 synth in a browser
 
 Synth engine by Oliver Larkin (powered by [VirtualCZ](http://www.olilarkin.co.uk/index.php?p=virtualcz))
 
